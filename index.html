@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checklist de desarrollo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: herramienta de trabajo, clara y sobria, sin adornos
+   IDEA: la hoja de ruta de un ticket, con pasos que se van tildando y un cierre bloqueado
+   PICTURE: la checklist misma, con su barra de avance y el "Done" con candado
+   COLOUR and TYPE: blanco, tinta, un teal profundo de acento; Libre Caslon para títulos, Inter para el resto
+   LAYOUT: lista de tickets a la izquierda, checklist del ticket a la derecha; apilado en celular */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0d1416);--ink:light-dark(#14161a,#e7eef0);--mut:light-dark(#5b636b,#93a3a8);--rule:light-dark(#e3e6e9,#22312f);--soft:light-dark(#f4f7f7,#13201f);--acc:light-dark(#0b5d63,#4fb6bc);--accs:light-dark(#e3f1f1,#123536);--warn:light-dark(#8a4b00,#f2b866);--warns:light-dark(#fff4e3,#2a2111);--ok:light-dark(#1d6b3a,#7fd49b)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2{font-family:"Libre Caslon Text",Georgia,serif;font-weight:400;line-height:1.08;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4vw,40px)}h2{font-size:clamp(22px,3vw,30px)}
+header{padding:28px max(5vw,16px) 18px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between}
+header p{margin:6px 0 0;color:var(--mut);max-width:60ch}
+.wrap{display:grid;grid-template-columns:280px minmax(0,1fr);max-width:1240px;margin:0 auto}
+aside{border-right:1px solid var(--rule);padding:20px 16px;min-height:70vh}
+main{padding:24px max(4vw,16px) 60px}
+button,input,textarea{font:inherit;color:inherit}
+button{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--rule);background:var(--bg);cursor:pointer}
+button:hover{border-color:var(--acc)}
+button.pri{background:var(--acc);border-color:var(--acc);color:var(--bg);font-weight:600}
+button.dz{color:#b3261e}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+input[type=text],input[type=number],textarea{font-size:16px;min-height:44px;padding:8px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--bg);width:100%}
+textarea{min-height:120px;font-size:14px}
+label.f{display:block;font-size:13px;color:var(--mut);margin-bottom:4px}
+.new{display:grid;gap:4px;margin-bottom:16px}.new label.f{margin:4px 0 0}.new button{margin-top:8px}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.list button{width:100%;text-align:left;display:grid;gap:2px;padding:10px 12px;height:auto}
+.list button[aria-current=true]{border-color:var(--acc);background:var(--accs)}
+.list b{font-weight:600}.list small{color:var(--mut);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini{height:4px;background:var(--rule);border-radius:4px;overflow:hidden;margin-top:4px}.mini i{display:block;height:100%;background:var(--acc)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;padding-top:16px;border-top:1px solid var(--rule)}
+.tools button{flex:1 1 120px;font-size:14px}
+.meta{display:grid;grid-template-columns:160px minmax(0,1fr);gap:12px;margin:18px 0}
+.prog{display:flex;align-items:center;gap:14px;margin:8px 0 26px}
+.bar{flex:1;height:10px;background:var(--rule);border-radius:10px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.prog span{font-weight:600;white-space:nowrap}
+.stage{display:inline-block;font-size:13px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--accs);color:var(--acc)}
+.stage.done{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.step{border:1px solid var(--rule);border-radius:12px;padding:18px 20px;margin-bottom:14px;position:relative}
+.step.complete{background:var(--soft)}
+.step h3{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:10px}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--rule);flex:none;display:grid;place-items:center;font-size:13px;color:var(--bg)}
+.complete .dot{background:var(--acc);border-color:var(--acc)}
+.step>p{margin:0 0 12px;color:var(--mut);font-size:15px}
+.hrs{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-bottom:12px}
+.hrs>div{width:150px}
+.total{padding:8px 14px;border-radius:8px;background:var(--accs);font-weight:600;white-space:nowrap;min-height:44px;display:flex;align-items:center}
+.ck{display:flex;gap:12px;align-items:flex-start;padding:8px 0;cursor:pointer}
+.ck input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--acc);flex:none;cursor:pointer}
+.ck input:disabled{cursor:not-allowed}.ck input:disabled+span{color:var(--mut)}
+.ck input:checked+span{text-decoration:line-through;text-decoration-color:var(--mut)}
+.note{background:var(--warns);color:var(--warn);border-radius:8px;padding:10px 14px;font-size:15px;margin:6px 0 4px}
+.ds{border-left:3px solid var(--acc);padding:6px 0 6px 14px;margin:2px 0 8px 34px;font-size:15px;color:var(--mut)}.ds ul{margin:4px 0 0;padding-left:18px;color:var(--ink)}
+.lock{font-size:14px;color:var(--mut);margin:4px 0 0 34px}
+.foot{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.empty{color:var(--mut);padding:40px 0;max-width:46ch}
+.dlg{border:1px solid var(--rule);border-radius:12px;padding:16px;margin-top:16px;background:var(--soft)}
+.dlg[hidden]{display:none}
+.warnbar{background:var(--warns);color:var(--warn);padding:14px max(5vw,16px);border-bottom:1px solid var(--rule);font-size:15px}.warnbar[hidden]{display:none}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){.bar i,.toast{transition:none}}
+@media(max-width:760px){.wrap{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--rule);min-height:0}.list{grid-auto-flow:column;grid-auto-columns:200px;overflow-x:auto;padding-bottom:6px}}
+@media(max-width:500px){.meta{grid-template-columns:1fr}.hrs>div{width:calc(50% - 6px)}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Checklist de desarrollo</h1>
+    <p>Una checklist por ticket: análisis, estimación, desarrollo y cierre en Jira. Tu progreso queda guardado en este navegador.</p>
+  </div>
+</header>
+<div class="warnbar" id="warnbar" hidden><b>Atención: acá no se va a guardar lo que cargues.</b> El lugar donde abriste la página (por ejemplo, la vista previa de SharePoint) no deja guardar datos en el navegador. Descargá el archivo y abrilo desde tu compu con Chrome o Edge. Si tenés que seguir acá, antes de cerrar usá <b>Respaldo</b> para copiar tus tickets.</div>
+<div class="wrap">
+  <aside>
+    <div class="new" id="newForm">
+      <label class="f" for="newKey">Ticket de Jira</label>
+      <input type="text" id="newKey" placeholder="Ej. PROJ-123" autocomplete="off">
+      <label class="f" for="newName">Nombre del desarrollo</label>
+      <input type="text" id="newName" placeholder="Ej. Alta de clientes" autocomplete="off">
+      <button class="pri" type="button" id="addBtn">Agregar</button>
+    </div>
+    <ul class="list" id="list"></ul>
+    <div class="tools">
+      <button type="button" id="bkBtn">Respaldo</button>
+      <button type="button" id="impBtn">Importar</button>
+    </div>
+    <div class="dlg" id="dlg" hidden>
+      <label class="f" for="dlgTxt" id="dlgLbl"></label>
+      <textarea id="dlgTxt" spellcheck="false"></textarea>
+      <div class="foot"><button type="button" class="pri" id="dlgOk"></button><button type="button" id="dlgX">Cerrar</button></div>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+{
+const KEY='checklist-desarrollo-v1';
+const CHECKS=['a1','e1','e2','e3','d1','q1','q2','q3','q4','f1'];
+let db={tickets:[],sel:null};
+let canSave=false;
+try{localStorage.setItem(KEY+'-t','1');canSave=localStorage.getItem(KEY+'-t')==='1';localStorage.removeItem(KEY+'-t')}catch(e){}
+try{const s=localStorage.getItem(KEY);if(s)db=JSON.parse(s)}catch(e){}
+if(!Array.isArray(db.tickets))db={tickets:[],sel:null};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:0};
+const fmt=n=>(Math.round(n*100)/100).toLocaleString('es-AR');
+const $=id=>document.getElementById(id);
+const cur=()=>db.tickets.find(t=>t.id===db.sel);
+const pct=t=>Math.round(CHECKS.filter(k=>t.c[k]).length/CHECKS.length*100);
+const qaOk=t=>t.c.d1&&t.c.q1&&t.c.q2&&t.c.q3&&t.c.q4;
+function stage(t){
+  if(t.c.f1)return'Done';
+  if(t.c.d1)return'Falta cierre (TE025 / DS140 / peer review)';
+  if(t.c.e1&&t.c.e2&&t.c.e3)return'En desarrollo';
+  if(t.c.a1)return'En estimación';
+  return'En análisis';
+}
+function toast(m){const e=$('toast');e.textContent=m;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1800)}
+
+function renderList(){
+  $('list').innerHTML=db.tickets.length?db.tickets.map(t=>`<li><button type="button" data-id="${esc(t.id)}" aria-current="${t.id===db.sel}">
+    <b>${esc(t.key)}</b><small>${esc(t.title||stage(t))}</small><span class="mini"><i style="width:${pct(t)}%"></i></span></button></li>`).join('')
+    :'<li class="empty" style="padding:8px 0">Todavía no hay tickets.</li>';
+}
+const ck=(t,k,txt,dis)=>`<label class="ck"><input type="checkbox" data-k="${k}" ${t.c[k]?'checked':''} ${dis?'disabled':''}><span>${txt}</span></label>`;
+const stepDone=(t,ks)=>ks.every(k=>t.c[k]);
+
+function renderMain(){
+  const t=cur();
+  if(!t){$('main').innerHTML='<div class="empty"><h2>Empezá por un ticket</h2><p>Ingresá el ticket de Jira y el nombre del desarrollo a la izquierda y tocá Agregar. Cada desarrollo tiene su propia checklist.</p></div>';return}
+  const total=num(t.hA)+num(t.hE), p=pct(t), st=stage(t);
+  $('main').innerHTML=`
+  <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+    <div><h2 id="hName">${esc(t.title||'Desarrollo sin nombre')}</h2><div style="color:var(--mut);margin-top:4px">${esc(t.key)}</div></div><span class="stage ${st==='Done'?'done':''}">${esc(st)}</span>
+  </div>
+  <div class="meta">
+    <div><label class="f" for="fKey">Ticket</label><input type="text" id="fKey" data-f="key" value="${esc(t.key)}"></div>
+    <div><label class="f" for="fTitle">Nombre del desarrollo</label><input type="text" id="fTitle" data-f="title" value="${esc(t.title)}" placeholder="Ej. Alta de clientes"></div>
+  </div>
+  <div class="prog"><div class="bar"><i style="width:${p}%"></i></div><span>${p}%</span></div>
+
+  <section class="step ${stepDone(t,['a1'])?'complete':''}">
+    <h3><span class="dot">✓</span>Análisis</h3>
+    <p>Las horas de análisis se cargan en Jira en la tarea de <b>Estimación</b>.</p>
+    <div class="hrs"><div><label class="f" for="fA">Horas de análisis</label><input type="number" min="0" step="0.5" id="fA" data-f="hA" value="${esc(t.hA)}" inputmode="decimal"></div></div>
+    ${ck(t,'a1','Terminé el análisis y anoté las horas')}
+  </section>
+
+  <section class="step ${stepDone(t,['e1','e2','e3'])?'complete':''}">
+    <h3><span class="dot">✓</span>Estimación</h3>
+    <p>¿Ya estimaste? Sumá las horas de estimación + análisis en la tarea de Estimación de Jira y marcala como Done.</p>
+    <div class="hrs">
+      <div><label class="f" for="fE">Horas de estimación</label><input type="number" min="0" step="0.5" id="fE" data-f="hE" value="${esc(t.hE)}" inputmode="decimal"></div>
+      <div class="total" id="tot">Total a cargar: ${fmt(total)} h</div>
+    </div>
+    ${ck(t,'e1',`Cargué <b id="tot2">${fmt(total)} h</b> (análisis + estimación) en la tarea de Estimación`)}
+    ${ck(t,'e2','Marqué la tarea de Estimación como <b>Done</b>')}
+    <div class="hrs" style="margin-top:10px"><div><label class="f" for="fO">Original estimate (h)</label><input type="number" min="0" step="0.5" id="fO" data-f="oe" value="${esc(t.oe)}" inputmode="decimal"></div></div>
+    ${ck(t,'e3','Cargué el <b>Original Estimate</b> en el ticket de Desarrollo de Jira')}
+  </section>
+
+  <section class="step ${stepDone(t,['d1'])?'complete':''}">
+    <h3><span class="dot">✓</span>Desarrollo</h3>
+    ${ck(t,'d1','Terminé el desarrollo')}
+    <div class="note">No marques el ticket de Desarrollo como Done todavía: falta TE025, DS140 y peer review.</div>
+  </section>
+
+  <section class="step ${stepDone(t,['q1','q2','q3','f1'])?'complete':''}">
+    <h3><span class="dot">✓</span>Cierre</h3>
+    ${ck(t,'q1','<b>TE025</b> · pruebas')}
+    ${ck(t,'q2','<b>DS140</b> · especificación técnica')}
+    <div class="ds">Acordate de que el DS140 tiene que especificar:<ul><li>Objetos modificados</li><li>Cargas manuales</li><li>Peer review</li><li>Validates de los objetos</li></ul></div>
+    ${ck(t,'q3','<b>Peer review</b>')}
+    <div class="note">No te olvides de subir el DS140 + el TE025 al ticket de Desarrollo de Jira y de etiquetar a <b>Gonzalo</b> y <b>Alejandra</b>.</div>
+    ${ck(t,'q4','Subí el <b>DS140</b> y el <b>TE025</b> al ticket de Desarrollo y etiqueté a Gonzalo y Alejandra')}
+    ${ck(t,'f1','¿Terminaste todo? Marqué el ticket de Desarrollo como <b>Done</b> en Jira',!qaOk(t)&&!t.c.f1)}
+    ${qaOk(t)||t.c.f1?'':'<p class="lock">Se habilita cuando tildes desarrollo, TE025, DS140, peer review y la subida a Jira.</p>'}
+  </section>
+
+  <div class="foot">
+    <button type="button" id="copyBtn">Copiar resumen</button>
+    <button type="button" id="resetBtn">Reiniciar checklist</button>
+    <button type="button" class="dz" id="delBtn">Eliminar ticket</button>
+  </div>
+  <div class="dlg" id="delDlg" hidden><p style="margin:0 0 10px">¿Eliminar <b>${esc(t.key)}</b> y su checklist? No se puede deshacer.</p>
+    <div class="foot" style="margin:0"><button type="button" class="dz" id="delOk">Sí, eliminar</button><button type="button" id="delX">Cancelar</button></div></div>`;
+}
+const render=()=>{renderList();renderMain()};
+
+function add(key,name){
+  key=key.trim().toUpperCase();if(!key){toast('Ingresá el ticket de Jira');return}
+  const ex=db.tickets.find(t=>t.key===key);
+  if(ex){db.sel=ex.id;save();render();toast('Ese ticket ya existe');return}
+  const t={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),key,title:(name||'').trim(),hA:'',hE:'',oe:'',c:{},created:new Date().toISOString()};
+  db.tickets.unshift(t);db.sel=t.id;save();render();
+}
+function summary(t){
+  const y=k=>t.c[k]?'[x]':'[ ]';
+  return `Desarrollo: ${t.title||'(sin nombre)'}
+Ticket: ${t.key}
+Estado: ${stage(t)}
+Análisis: ${fmt(num(t.hA))} h | Estimación: ${fmt(num(t.hE))} h | Total en tarea Estimación: ${fmt(num(t.hA)+num(t.hE))} h
+Original estimate: ${fmt(num(t.oe))} h
+${y('a1')} Análisis
+${y('e1')} Horas cargadas en tarea Estimación
+${y('e2')} Tarea Estimación en Done
+${y('e3')} Original estimate cargado
+${y('d1')} Desarrollo terminado
+${y('q1')} TE025 pruebas
+${y('q2')} DS140 especificación técnica
+${y('q3')} Peer review
+${y('q4')} DS140 + TE025 subidos a Jira, Gonzalo y Alejandra etiquetados
+${y('f1')} Ticket de Desarrollo en Done`;
+}
+async function copy(txt,msg){try{await navigator.clipboard.writeText(txt);toast(msg)}catch(e){openDlg('Copiá este texto:',txt,null);}}
+let dlgFn=null;
+function openDlg(lbl,txt,fn,ok){$('dlg').hidden=false;$('dlgLbl').textContent=lbl;$('dlgTxt').value=txt;dlgFn=fn;$('dlgOk').hidden=!fn;$('dlgOk').textContent=ok||'Aceptar';$('dlgTxt').focus()}
+
+const doAdd=()=>{const k=$('newKey').value;if(!k.trim()){toast('Ingresá el ticket de Jira');$('newKey').focus();return}add(k,$('newName').value);$('newKey').value='';$('newName').value=''};
+$('addBtn').addEventListener('click',doAdd);
+$('newForm').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();doAdd()}});
+$('list').addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(b){db.sel=b.dataset.id;save();render()}});
+$('main').addEventListener('change',e=>{
+  const t=cur();if(!t)return;const k=e.target.dataset.k;
+  if(k){t.c[k]=e.target.checked;if(!qaOk(t))t.c.f1=false;save();render();if(k==='f1'&&t.c.f1)toast('¡Ticket cerrado!')}
+});
+$('main').addEventListener('input',e=>{
+  const t=cur();const f=e.target.dataset.f;if(!t||!f)return;
+  t[f]=f==='key'?e.target.value.toUpperCase():e.target.value;save();renderList();
+  if(f==='title')$('hName').textContent=t.title||'Desarrollo sin nombre';
+  if(f==='hA'||f==='hE'){const tot=fmt(num(t.hA)+num(t.hE));$('tot').textContent='Total a cargar: '+tot+' h';$('tot2').textContent=tot+' h'}
+});
+$('main').addEventListener('click',e=>{
+  const t=cur();if(!t)return;const id=e.target.closest('button')?.id;
+  if(id==='copyBtn')copy(summary(t),'Resumen copiado, pegalo en Jira');
+  if(id==='resetBtn'){t.c={};save();render();toast('Checklist reiniciada')}
+  if(id==='delBtn')$('delDlg').hidden=false;
+  if(id==='delX')$('delDlg').hidden=true;
+  if(id==='delOk'){db.tickets=db.tickets.filter(x=>x.id!==t.id);db.sel=db.tickets[0]?.id||null;save();render()}
+});
+$('bkBtn').addEventListener('click',()=>{const s=JSON.stringify(db.tickets);openDlg('Respaldo de tus tickets. Copialo y guardalo para pasarlo a otra compu:',s,()=>copy(s,'Respaldo copiado'),'Copiar')});
+$('impBtn').addEventListener('click',()=>openDlg('Pegá acá un respaldo:','',()=>{
+  try{const arr=JSON.parse($('dlgTxt').value);if(!Array.isArray(arr))throw 0;let n=0;
+    for(const x of arr){if(!x||!x.key)continue;const t={id:String(x.id||Date.now().toString(36)+n),key:String(x.key),title:String(x.title||''),hA:String(x.hA||''),hE:String(x.hE||''),oe:String(x.oe||''),c:{},created:x.created||''};
+      for(const k of CHECKS)t.c[k]=!!(x.c&&x.c[k]);
+      db.tickets=db.tickets.filter(y=>y.key!==t.key);db.tickets.push(t);n++}
+    db.sel=db.sel||db.tickets[0]?.id||null;save();render();$('dlg').hidden=true;toast(n+' tickets importados')}
+  catch(e){toast('El texto no es un respaldo válido')}},'Importar'));
+$('dlgOk').addEventListener('click',()=>dlgFn&&dlgFn());
+$('dlgX').addEventListener('click',()=>$('dlg').hidden=true);
+if(!canSave)$('warnbar').hidden=false;
+if(!cur())db.sel=db.tickets[0]?.id||null;
+render();
+}
+</script>
+</body>
+</html>
